@@ -1,0 +1,1 @@
+A blueprint that monitors a media player entity (e.g., a smart TV or any media device integrated into Home Assistant). When the media player state changes to "playing" and the lights are on, the lights will dim. If the media player state changes to "paused", the lights will return to full brightness.
