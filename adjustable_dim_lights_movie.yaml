@@ -1,0 +1,70 @@
+blueprint:
+  name: Dim Lights During Movie and Adjustable Brighten on Pause
+  description: Dims the lights when a movie starts and adjusts to a set brightness when the movie is paused.
+  domain: automation
+  input:
+    media_player:
+      name: Media Player
+      description: Media player to monitor.
+      selector:
+        entity:
+          domain: media_player
+    lights:
+      name: Lights
+      description: Lights to dim or brighten.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    playing_brightness:
+      name: Playing Brightness
+      description: Brightness level when the movie is playing (0-255).
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 255
+    paused_brightness:
+      name: Paused Brightness
+      description: Brightness level when the movie is paused (0-255).
+      default: 255
+      selector:
+        number:
+          min: 1
+          max: 255
+
+trigger:
+  - platform: state
+    entity_id: !input "media_player"
+    from: "off"
+    to: "playing"
+  - platform: state
+    entity_id: !input "media_player"
+    from: "playing"
+    to: "paused"
+
+condition:
+  condition: state
+  entity_id: !input "lights"
+  state: "on"
+
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input "media_player"
+            state: "playing"
+        sequence:
+          - service: light.turn_on
+            data:
+              entity_id: !input "lights"
+              brightness: !input "playing_brightness"
+      - conditions:
+          - condition: state
+            entity_id: !input "media_player"
+            state: "paused"
+        sequence:
+          - service: light.turn_on
+            data:
+              entity_id: !input "lights"
+              brightness: !input "paused_brightness"
